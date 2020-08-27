@@ -1,0 +1,36 @@
+language: generic
+
+sudo: required
+
+services:
+  - docker
+
+before_install:
+  - docker build -t eunbi5918/react-test-app -f ./frontend/Dockerfile.dev ./frontend
+
+script:
+  - docker run -e CI=true eunbi5918/react-test-app npm test
+
+after_success:
+  - docker build -t eunbi5918/docker-frontend ./frontend
+  - docker build -t eunbi5918/docker-backend ./backend
+  - docker build -t eunbi5918/docker-nginx ./nginx
+
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+
+  - docker push eunbi5918/docker-frontend
+  - docker push eunbi5918/docker-backend
+  - docker push eunbi5918/docker-nginx
+
+  deploy:
+    provider: elasticbeanstalk
+    region: "us-east-2"
+    app: "docker-fullstack-app"
+    env: "DockerFullstackApp-env"
+    bucket_name: elasticbeanstalk-us-east-2-735947128755
+    bucket_path: "docker-fullstack-app"
+    on:
+      branch: master
+    
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_ACCESS_KEY
