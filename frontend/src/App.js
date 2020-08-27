@@ -49,7 +49,7 @@ function App() {
                     안녕하세요.
                     <form className="example" onSubmit={submitHandler}>
                         <input type="text" placeholder="입력해주세요..." onChange={changeHandler} value={value} />
-                        <button type="submit">확인.</button>
+                        <button type="submit">확인</button>
                     </form>
                 </div>
             </header>
